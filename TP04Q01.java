@@ -3,7 +3,7 @@ Ciencia da Computação - Pucminas
 AEDs II
 Pedro Henrique Lima Carvalho
 Matricula: 651230
-TP 3 - Q04
+TP 4 - Q01
 */
 
 import java.util.Date;
@@ -367,191 +367,186 @@ class Personagem {
 }
 
 /**
-*Classe Celula
+*Classe Node
 */
-class Celula{
+class Node{
  //atributos
-	public Celula ant;
 	public Personagem elemento;
-	public Celula prox;
+	public Node esq;
+	public Node dir;
 
  //construtores
-	public Celula(Personagem p){
-		this.ant=null;
-		this.elemento=p;
-		this.prox=null;
+	public Node (Personagem p, Node esq, Node dir){
+		this.elemento = p;
+		this.esq = esq;
+		this.dir = dir;
+	}
+	public Node(Personagem p){
+		this(p, null, null) ;
 	}
 	
-	public Celula(){
-		this.ant=null;
-		this.elemento=null;
-		this.prox=null;
+	public Node(){
+		this(null);
 	}
 }
 
 /**
-*Classe Lista Flexivel
+*Classe Arvore
 */
-class Lista{
+class Arvore{
  //atributos
-	private Celula primeiro;
-	private Celula ultimo;
+	private Node raiz;
 
  //contrutotres
-	public Lista(){
-		this.primeiro = new Celula();
-		this.ultimo = primeiro;
+	public Arvore(Personagem p){
+		this.raiz = new Node(p);
+	}
+	public Arvore(){
+		this.raiz=null;
 	}
 
 //inserir
 	/**
-	*inserirInicio - insere um elemento no inicio da lista
-	*@param Personagem elemento
+	*inserir - Insere um elemento na arvore
+	*@param Elemento Personagem
 	*/
-	public void inserirInicio(Personagem p){
-		Celula tmp = new Celula(p);
-		tmp.prox=primeiro.prox;
-		tmp.ant=primeiro;
-		primeiro.prox=tmp;
-		if (primeiro==ultimo)
-			ultimo=primeiro.prox;
+	public void inserir(Personagem p) throws Exception{
+		this.raiz = inserir(p, this.raiz);
+	}
+	private Node inserir(Personagem p, Node i) throws Exception{
+		if(i==null)
+			i = new Node(p);
+		else if(p.compareTo(i.elemento, 0)<0.0)
+			i.esq=inserir(p, i.esq);
+		else if(p.compareTo(i.elemento, 0)>0.0)
+			i.dir=inserir(p, i.dir);
 		else
-			tmp.prox.ant=tmp;
-		tmp=null;
+			throw new Exception ("Elemento existente");
+		return i;
 	}
 
+//remover
 	/**
-	*inserirFim - insere um elemento no fim da lista
-	*@param Personagem elemento
+	*remover - remove um elemento da arvore
+	*@param Elemento Personagem
 	*/
-	public void inserirFim(Personagem p){
-		ultimo.prox = new Celula(p);
-		ultimo.prox.ant=ultimo;
-		ultimo=ultimo.prox;
-
+	public void remover(Personagem p) throws Exception{
+		this.raiz = remover(p, this.raiz);
 	}
-
-	/**
-	*tamanho - retorna o tamanho da lista
-	*@return tamanho int
-	*/
-	private int tamanho(){
-		int resp = 0;
-		for(Celula i=primeiro.prox; i!=null; i=i.prox){
-			resp++;
-		}
-		return resp;
+	private Node remover(Personagem p, Node i) throws Exception{
+		if (i==null)
+			throw new Exception ("Elemento nao existente");
+		else if(p.compareTo(i.elemento, 0)<0.0)
+			i.esq=remover(p, i.esq);
+		else if(p.compareTo(i.elemento, 0)>0.0)
+			i.dir=remover(p, i.dir);
+		else if(i.esq==null)
+			i=i.dir;
+		else if(i.dir==null)
+			i=i.esq;
+		else
+			i.esq=anterior(i, i.esq);
+		return i;
 	}
-
-	/**
-	*inserir - insere um elemento em determinada posicao
-	*@param Personagem elemento, int pos;
-	*/
-	public void inserir(Personagem p, int pos) throws Exception{
-		int tamanho = tamanho();
-		
-		if (pos>tamanho || pos<0)
-			throw new Exception ("Posicao Inexistente");
-		else if (pos==tamanho)
-			inserirFim(p);
-		else if (pos==0)
-			inserirInicio(p);
+	private Node anterior(Node i, Node j){
+		if (j.dir!=null)
+			j.dir=anterior(i, i.dir);
 		else{
-			Celula i=primeiro;
-			for(int j=0; j<pos; j++, i=i.prox);
-			
-			Celula tmp = new Celula(p);
-			tmp.prox = i.prox;
-			tmp.ant=i;
-			tmp.prox.ant=tmp;
-			i.prox=tmp;
-			i=tmp=null;
+			i.elemento=j.elemento;
+			j=j.esq;
 		}
-
-	}
-
- //remover
-	/**
-	*removerInicio - remove um elemento do inicio da lista
-	*@return Personagem elemento
-	*/
-	public Personagem removerInicio() throws Exception{
-		if(primeiro==ultimo)
-			throw new Exception("Lista Vazia");
-		
-		Celula tmp = primeiro;
-		primeiro = primeiro.prox;
-		tmp.prox=null;
-		primeiro.ant=null;
-		tmp=null;
-		return (primeiro.elemento);
-		
-	}
-
-	/*removerFim - remove um elemento do fim da lista
-	*@return Personagem elemento
-	*/
-	public Personagem removerFim() throws Exception{
-		if(primeiro==ultimo)
-			throw new Exception("Lista Vazia");
-		
-		Personagem p=ultimo.elemento;
-	
-		ultimo=ultimo.ant;
-		ultimo.prox.ant=null;
-		ultimo.prox=null;		
-	
-		return p;
-	}
-	
-	/*remover - remove um elemento da posicao
-	*@param int posicao
-	*@return Personagem p
-	*/
-	public Personagem remover(int pos) throws Exception{
-		int tamanho = tamanho();
-		Personagem p;
-
-		if(pos<0 || pos>tamanho-1)
-			throw new Exception("Posicao Inexistente");
-		else if (pos==0)
-			p=removerInicio();
-		else if (pos==tamanho-1)
-			p=removerFim();
-		else{
-			Celula i = primeiro.prox;
-			for(int j=0; j<pos; j++, i=i.prox);
-			
-			p=i.elemento;
-
-			i.prox.ant=i.ant;
-			i.ant.prox=i.prox;
-				
-			i.ant=i.prox=null;
-			i=null;
-		}
-		
-		return p;
+		return j;
 	}
 
  //mostrar
 	/**
-	*mostrar lista
+	*mostrarCentral - mostra os elementos da arvore
 	*/
-	public void mostrar(){
-		int j=0;
-		for (Celula i=primeiro.prox; i!=null; i=i.prox, j++){
-			MyIO.println("["+j+"] "+ i.elemento.ler());
+	public void mostrarCentral(){
+		mostrarCentral(this.raiz);
+		System.out.println("");
+	}
+	private void mostrarCentral(Node i){
+		if(i!=null){
+			mostrarCentral(i.esq);
+			MyIO.print(i.elemento.getNome()+" ");
+			mostrarCentral(i.dir);
+		}
+	}
+	
+	/**
+	*mostrarPre - mostra os elementos da arvore
+	*/
+	public void mostrarPre(){
+		mostrarPre(this.raiz);
+		System.out.println("");
+	}
+	private void mostrarPre(Node i){
+		if(i!=null){
+			MyIO.print(i.elemento.getNome()+" ");
+			mostrarPre(i.esq);
+			mostrarPre(i.dir);
+		}
+	}
+	
+	/**
+	*mostrarPos - mostra os elementos da arvore
+	*/
+	public void mostrarPos(){
+		mostrarPos(this.raiz);
+	}
+	private void mostrarPos(Node i){
+		if(i!=null){
+			mostrarPos(i.esq);
+			mostrarPos(i.dir);
+			MyIO.print(i.elemento.getNome()+" ");
 		}
 	}
 
+ //pesquisar
 	/**
-	*mostrar lista sem posicao
+	*pesquisar - Pesquisa se um elemento esta na arvore
+	*@param Elemento Personagem
+	*@return boolean
 	*/
-	public void mostrar(char c){
-		for(Celula i=primeiro.prox; i!=null; i=i.prox){
-			MyIO.println(i.elemento.ler());
+	public boolean pesquisar(Personagem p){
+		return(pesquisar(p, this.raiz));
+	}
+	private boolean pesquisar(Personagem p, Node i){
+		boolean resp = false;
+		if(i==null)
+			resp = false;	
+		else if (p.compareTo(i.elemento, 0)<0.0)
+			resp = pesquisar(p, i.esq);
+		else if (p.compareTo(i.elemento, 0)>0.0)
+			resp = pesquisar(p, i.dir);
+		else
+			resp=true;
+		return resp;
+	}
+
+	//@param String nome
+	public boolean pesquisar(String nome, int[] log){
+		MyIO.print(nome+" raiz ");
+		return(pesquisar(nome, this.raiz, log));
+	}
+	private boolean pesquisar(String nome, Node i, int[] log){
+		boolean resp = false;
+		if(i==null)
+			resp = false;
+		else if(nome.compareTo(i.elemento.getNome())<0){
+			log[0]++;
+			MyIO.print("esq ");
+			resp = pesquisar(nome, i.esq, log);
 		}
+		else if(nome.compareTo(i.elemento.getNome())>0){
+			log[0]++;
+			MyIO.print("dir ");
+			resp = pesquisar(nome, i.dir, log);
+		}
+		else
+			resp = true;
+		return resp; 
 	}
 
  //comandos
@@ -559,7 +554,7 @@ class Lista{
 	*comandos - executa os comandos contidos em um string
 	*@param String com comandos
 	*/
-	public void comandos(String s) throws Exception{
+/*	public void comandos(String s) throws Exception{
 		String[] parsed = s.split(" ");
 		
 		if (parsed[0].equals("II")){
@@ -585,102 +580,14 @@ class Lista{
 
 		}
 	}
-	
- //zerarPeso
-	/**
-	*zerarPeso - zera o peso dos elementos da lista
-	*/
-	public void zerarPeso(){
-		for (Celula i=primeiro.prox; i!=null; i=i.prox){
-			i.elemento.setPeso(0.0);
-		}
-	}
- 
- //ordernar
-	/**
-	*swap - troca deois elementos da lista de posicao
-	*@param Celula i, Celula j
-	*/
-	public void swap(Celula i, Celula j){
-		Personagem buffer = i.elemento;
-		i.elemento=j.elemento;
-		j.elemento=buffer;
-	}
-	
-
-	/**
-	*ordernarQuickSort - ordena a lista pelo metodo QuickSort
-	*@param int[] log para estatistica
-	*/
-	public void ordenarQuickSort(int[] log) throws Exception {
-		if (primeiro==ultimo)
-			throw new Exception ("Lista Vazia");
-		quickSort(primeiro.prox, ultimo, log);
-	}
-
-	/**
-	*goTo - retorna o ponteiro da celula entre outras duas
-	*@param Celula i, Celula j
-	*@return Celula meio;
-	*/
-	public Celula goTo (Celula i, Celula j){
-		int tam = 0;
-		Celula tmp;
-
-		for (tmp=i; tmp!=j; tmp=tmp.prox, tam++);
-		tmp=i;
-		tam = tam/2;
-
-		for (int k=0; k<tam; k++, tmp=tmp.prox);
-
-		return tmp;
-	}
-
-
-	/**
-	*quickSort - quickSort para lista flexivel duplamente encadeada
-	*@param Celula esq, Celula dir, int[] log
-	*/
-	public void quickSort(Celula esq, Celula dir, int[] log){
-		Personagem pivo = goTo(esq, dir).elemento;
-		Celula i = esq;
-		Celula j = dir;
-
-		while (j.prox!=i && i.ant!=j && j.prox!=i.ant){
-	
-			log[0]+=2;
-			while(i.elemento.compareTo(pivo, 3)<0){
-				i=i.prox;
-				log[0]++;
-			}
-			while(j.elemento.compareTo(pivo, 3)>0){
-				j=j.ant;
-				log[0]++;
-			}
-			
-			if(j.prox!=i && i.ant!=j && j.prox!=i.ant){
-				swap(i, j);
-				i=i.prox;
-				j=j.ant;
-				log[1]+=3;
-			}
-		}
-
-		if(i!=dir && i!=null){
-			quickSort(i, dir, log);
-		}
-		if(j!=esq && j.prox!=esq){
-			quickSort(esq, j, log);
-		}
-	}
-
+*/
 }
 
 
 /**
 *Classe Main
 */
-public class TP03Q07{
+public class TP04Q01{
   		
 	/**
 	*tempo
@@ -695,38 +602,34 @@ public class TP03Q07{
 	*Metodo main
 	*/
 	public static void main(String[] args) throws Exception{
-		Lista list = new Lista();
+		Arvore arv = new Arvore();
 		int[] log = new int[2];
-		long inicio, fim;
+		long inicio, fim; inicio = fim = 0;
 		
 		String input = MyIO.readLine();
 		input = Personagem.toUtf(input);
 		while(!Personagem.isFim(input)){
-			list.inserirFim( new Personagem(input));
+			arv.inserir( new Personagem(input));
 			input = MyIO.readLine();
 			input = Personagem.toUtf(input);
 		}
-/*		
-		int n = MyIO.readInt();
-		
-		for (int i=0; i<n; i++){
-			input = MyIO.readLine();
-			input = Personagem.toUtf(input);
-			list.comandos(input);	
-		}
-*/
 		inicio=tempo();
-		list.ordenarQuickSort(log);
+		input = MyIO.readLine();
+//		input = Personagem.toUtf(input);
+		while(!Personagem.isFim(input)){
+			if(arv.pesquisar(input, log))
+				MyIO.println("SIM");
+			else
+				MyIO.println("N"+(char)195+"O");
+			input = MyIO.readLine();
+//			input = Personagem.toUtf(input);
+		}
 		fim=tempo();
 		double segundos = ((double)(fim-inicio))/1000.0;
 		
 		//arquivo log
-		Arq.openWrite("651230_quicksort3.txt");
-		Arq.print("651230\t"+log[0]+"\t"+log[1]+"\t"+segundos);
+		Arq.openWrite("651230_arvoreBinaria.txt");
+		Arq.print("651230\t"+segundos+"\t"+log[0]);
 		Arq.close();		
-
-		list.mostrar('c');
 	}	
-
-
 }
