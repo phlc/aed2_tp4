@@ -507,12 +507,13 @@ class Arvore{
 		boolean resp = false;
 		if(i==null)
 			resp = false;
-		else if(nome.compareTo(i.nome)<0){
+else if (nome.compareTo(i.nome)!=0){
+//			else if(nome.compareTo(i.nome)<0){
 			log[0]++;
 			MyIO.print("ESQ ");
 			resp=pesquisar(nome, i.esq, log);
-		}
-		else if(nome.compareTo(i.nome)>0){
+//		}
+//		else if(nome.compareTo(i.nome)>0){
 			log[0]++;
 			MyIO.print("DIR ");
 			resp=pesquisar(nome, i.dir, log);
@@ -577,7 +578,7 @@ public class TP04Q02{
 			if(arv.pesquisar(input, log))
 				MyIO.println("SIM");
 			else
-				MyIO.println("N"+(char)195+"O");
+				MyIO.println("NÃO");
 			input = MyIO.readLine();
 //			input = Personagem.toUtf(input);
 		}
@@ -585,7 +586,7 @@ public class TP04Q02{
 		double segundos = ((double)(fim-inicio))/1000.0;
 		
 		//arquivo log
-		Arq.openWrite("651230_arvoreBinaria.txt");
+		Arq.openWrite("651230_arvoreArvore.txt");
 		Arq.print("651230\t"+segundos+"\t"+log[0]);
 		Arq.close();		
 	}	
