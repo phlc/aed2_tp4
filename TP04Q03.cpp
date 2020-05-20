@@ -368,6 +368,29 @@ typedef struct Node{
 		
 		return p_no;
 	}
+/**
+*getNivel - retorna o nivel do no
+*@param Node*
+*@return int
+*/
+int getNivel(Node* p_no){
+	int resp = 0;
+	if (p_no!=NULL)
+		resp = p_no->nivel;
+	return resp;
+}
+
+/**
+*setNivel - fixa o nivel do no
+*@param Node*
+*@return Node*
+*/
+Node* setNivel (Node* p_no){
+	p_no->nivel=1+getNivel(p_no->esq);
+	if(p_no->nivel<1+getNivel(p_no->dir))
+		p_no->nivel=1+getNivel(p_no->dir);
+	return p_no;
+}
 
 //----------------------------------- Arvore AVL -------------------------------------------
 
@@ -396,6 +419,67 @@ Arvore* construtorArvore (){
 }
 
 //metodos
+
+//balanceamento ----------------------
+/**
+*rotDir - rotaciona a arvore para a direita
+*@param Node*
+*@return Node*
+*/
+Node* rotDir (Node* p_no){
+	Node* noEsq = p_no->esq;
+	p_no->esq = noEsq->dir;
+	noEsq->dir = p_no;
+	
+	setNivel(p_no);
+	setNivel(noEsq);
+	return noEsq;
+} 
+
+/**
+*rotEsq - rotaciona a arvore para a esquerda
+*@param Node*
+*@return Node*
+*/
+Node* rotEsq (Node* p_no){
+	Node* noDir = p_no->dir;
+	p_no->dir = noDir->esq;
+	noDir->esq = p_no;
+	
+	setNivel(p_no);
+	setNivel(noDir);
+	return noDir;
+} 
+
+/**
+*balancear - balancea a arvore do no para baixo
+*@param Node*
+*@return Node*
+*/
+Node* balancear (Node* p_no){
+	if (p_no!=NULL){
+		int fator = getNivel(p_no->dir) - getNivel(p_no->esq);
+		if (-1<=fator && fator<=1){
+			setNivel(p_no);
+		}
+		else if (fator==2){
+			int fatorDir = getNivel(p_no->dir->dir) - getNivel(p_no->dir->esq);
+			if(fatorDir==-1)
+				p_no->dir=rotDir(p_no->dir);
+			p_no = rotEsq(p_no);
+		}
+		else if (fator==-2){
+			int fatorEsq = getNivel(p_no->esq->dir) - getNivel(p_no->esq->esq);
+			if(fatorEsq==1)
+				p_no->esq=rotEsq(p_no->esq);
+			p_no = rotDir(p_no);
+		}
+		else
+			printf("%s\n", "Erro fator de balanceamento");
+	}
+	return p_no;
+}
+
 
 //inserir ----------------------------------
 
@@ -428,6 +512,9 @@ Node* inserirRec(Node* p_no, Personagem* p_person){
 				printf("%s\n", "Elemento existente");
 		}
 	}
+
+	p_no = balancear(p_no);
+
 	return p_no;
 }
 
