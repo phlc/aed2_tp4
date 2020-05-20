@@ -4,7 +4,7 @@ Pedro Henrique Lima Carvalho
 Matricula: 651230
 AEDs 2
 
-TP03 - Q04
+TP04 - Q03
 */
 
 //dependencias
@@ -342,221 +342,198 @@ double compare(Personagem* p_person1, Personagem* p_person2, int op){
 } 
 
 
-//------------------------------------ Celula ----------------------------------------------
+//----------------------------------- Node AVL ----------------------------------------------
 
 /**
-*struct Celula
+*struct Node AVL
 */
-typedef struct Celula{
+typedef struct Node{
  
  //atributos
-	Celula* ant;
 	Personagem* elemento;
-	Celula* prox;
+	Node* esq;
+	Node* dir;
+	int nivel;
 
-}Celula;
+}Node;
 
  //construtor
-	Celula* construtorCelula (Personagem* p){
-		Celula* cel = (Celula*) malloc(sizeof(Celula));
+	Node* construtorNode (Personagem* p){
+		Node* p_no = (Node*) malloc(sizeof(Node));
 		
-		cel->ant = NULL;
-		cel->elemento = p;
-		cel->prox = NULL;
+		p_no->elemento = p;
+		p_no->esq = NULL;
+		p_no->dir = NULL;
+		p_no->nivel = 1;
 		
-		return cel;
+		return p_no;
 	}
 
-//------------------------------- Lista Flexivel -------------------------------------------
+//----------------------------------- Arvore AVL -------------------------------------------
 
 /**
-*struct Lista
+*struct Arvore
 */
-typedef struct Lista{
+typedef struct Arvore{
  
 //atributos
-	Celula* primeiro;
-	Celula* ultimo;
-}Lista;
+	Node* raiz;
+
+}Arvore;
 
 //construtor
 /**
-*construtorLista - inicializa uma Lista
-*@param int tamanho
-*@return list*
+*construtorArvore - inicializa uma Arvore
+*@return Arvore*
 */
-Lista* construtorLista (){
+Arvore* construtorArvore (){
 
-	Lista* p_lista;
-	p_lista = (Lista*) malloc (sizeof(Lista));	
-	p_lista->primeiro = construtorCelula (NULL);
-	p_lista->ultimo = p_lista->primeiro;
+	Arvore* p_arvore;
+	p_arvore = (Arvore*) malloc (sizeof(Arvore));
+	p_arvore->raiz = NULL;
 	
-	return p_lista;
+	return p_arvore;
 }
 
 //metodos
 
-/**
-*removerInicio - remove um elemento inicio da lista
-*@return Personagem*
-*/
-Personagem* RemoverInicio (Lista* p_lista){
-	Personagem* p_person;
+//inserir ----------------------------------
 
-	if (p_lista->primeiro == p_lista->ultimo){
-		printf("%s\n", "Erro - Lista Vazia");
-	}
+//declaracoes
+Node* inserirRec(Node* p_no, Personagem* p_person);
+
+/**
+*inserir - Insere um elemento na arvore
+*@param Arvore* Personagem*
+*/
+void inserir(Arvore* p_arvore, Personagem* p_person){
+	p_arvore->raiz = inserirRec(p_arvore->raiz, p_person);  
+} 
+
+/**
+*inserirRec - Insere um elemnento na arvore recursivamente
+*@param Node* e Personagem*
+*@return Node*
+*/
+Node* inserirRec(Node* p_no, Personagem* p_person){
+	if (p_no==NULL)
+		p_no = construtorNode(p_person);
 	else{
-		Celula* tmp = p_lista->primeiro;
-		p_lista->primeiro = p_lista->primeiro->prox;
-		p_person = p_lista->primeiro->elemento;
-		p_lista->primeiro->ant=NULL;
-		p_lista->primeiro->elemento=NULL;
-		free(tmp);
-		
+		if (compare(p_person, p_no->elemento, 0)<0.0)
+			p_no->esq = inserirRec(p_no->esq, p_person);
+		else{
+			if (compare(p_person, p_no->elemento, 0)>0.0)
+				p_no->dir = inserirRec(p_no->dir, p_person);
+			else
+				printf("%s\n", "Elemento existente");
+		}
 	}
-	return p_person;
+	return p_no;
 }
 
+
+//remover ----------------------------------
+
+//declaracoes
+Node* removerRec(Node* p_no, Personagem* p_person);
+Node* anterior(Node* p_i, Node* p_j); 
 
 /**
-*inserirFim - insere um elemento no final da lista
-*@param Lista* Personagem*
+*remover - remove um elemento da arvore
+*@param Arvore* Personagem*
 */
-void inserirFim(Lista* p_lista, Personagem* p_person){
-	
-	p_lista->ultimo->prox = construtorCelula(p_person);
-	p_lista->ultimo->prox->ant = p_lista->ultimo;
-	p_lista->ultimo=p_lista->ultimo->prox;		
+void remover(Arvore* p_arvore, Personagem* p_person){
+	p_arvore->raiz = removerRec(p_arvore->raiz, p_person);
 }
 
 /**
-*mostrar lista
-*@param Lista*
+*removerRec - Remove um personagem da arvore recursivamente
+*@param Node* Personagem*
+*@return Node*
 */
-void mostrar(Lista* p_lista){
-	int j=0;
-	for (Celula* i=p_lista->primeiro->prox; i!=NULL; i=i->prox, j++){
-		printf("%s%d%s", "[", j, "] ");
-		imprimir(i->elemento);
-	} 
-}
-
-/**mostrar2 - fila sem posicao
-*@param Fila*
-*/
-void mostrar2(Lista* p_lista){
-	for (Celula* i=p_lista->primeiro->prox; i!=NULL; i=i->prox){
-		imprimir(i->elemento);
+Node* removerRec(Node* p_no, Personagem* p_person){
+	if (p_no == NULL)
+		printf("%s\n", "Elemento inexistente");
+	else{
+		if(compare(p_person, p_no->elemento, 0)<0.0)
+			p_no->esq = removerRec(p_no->esq, p_person);
+		else{
+			if(compare(p_person, p_no->elemento, 0)>0.0)
+				p_no->dir = removerRec(p_no->dir, p_person);
+			else{
+				if(p_no->esq==NULL)
+					p_no = p_no->dir;
+				else{
+					if(p_no->dir==NULL)
+						p_no = p_no->esq;	
+					else
+						p_no->esq = anterior(p_no, p_no->esq);
+				}
+			}
+		}
 	}
-}
-
-
-/**
-*freeLista - libera a memoria da Lista
-*@param Lista*
-*/
-void freeLista (Lista* p_Lista){
-	
-	Celula* i = p_Lista->primeiro->prox;
-	free(p_Lista->primeiro);
-	p_Lista->ultimo=NULL;
-	if (i!=NULL){
-		for (Celula* j = i->prox; j!=NULL; j=j->prox){
-			freePerson(i->elemento);
-			free(i);
-			i=j;
-		}	
-		freePerson(i->elemento);
-		free(i);
-	}
-	free(p_Lista);
+	return p_no;
 }
 
 /**
-*swap - troca de posicao dois elementos da lista
-*@param Celula* i, Celula* j
+*anterior - Remove um personagem da arvore recusivamente quando seus filhos != NULL
+*@param Node* e Node*
+*@return Node*
 */
-void swap(Celula* i, Celula* j){
-	Personagem* buffer = i->elemento;
-	i->elemento = j->elemento;
-	j->elemento = buffer;
+Node* anterior (Node* i, Node* j){
+		if(j->dir!=NULL)
+			j->dir = anterior(i, j->dir);
+		else{
+			i->elemento = j->elemento;
+			j = j->esq;
+		}
+		return j;
+}
+
+
+//pesquisar -------------------
+//declaracoes
+int pesquisarRec (Node* p_no, char* nome, int log[]); 
+
+/**
+*pesquisar - Pesquisa se um elemento esta na arvore
+*@param Arvore* char* Nome int log[]
+*@return int (0-false, 1-true)
+*/
+int pesquisar (Arvore* p_arvore, char* nome, int log[]){
+	printf("%s %s", nome, "raiz ");
+	return (pesquisarRec(p_arvore->raiz, nome, log));
 }
 
 /**
-*getPivo - retorna o Personagem* pivo
-*@param Celula* i, Celula* j
-*@return Personagem* p_person
+*pesquisarRec - Pesquisa se um elemento esta na arvore
+*@param Node*, char* nome, int log[]
+*@return int(0-false, 1-true)
 */
-Personagem* getPivo (Celula* i, Celula* j){
-	int tam = 0;
-	Celula* tmp;
-	for (tmp=i; tmp!=j; tmp=tmp->prox, tam++);
-
-	tam=tam/2;
-	
-	tmp=i;
-	for(int k=0; k<tam; k++){
-		tmp=tmp->prox;
-	}
-	return(tmp->elemento);
-}
-
-/**
-*QuickSort - quicksort
-*@param Celula* esq, Celula* dir, int log[]
-*/
-void quickSort (Celula* esq, Celula* dir, int log[]){
-	
-	Celula* i = esq;
-	Celula* j = dir;
-
-	Personagem* pivo = getPivo(i, j);
-       
-	while (i->ant!=j && j->prox!=i && i->ant!=j->prox){
-		
-		log[0]+=2;		
-
-		while (compare(i->elemento, pivo, 3)<0.0){
-			i=i->prox;
-
+int pesquisarRec (Node* p_no, char* nome, int log[]){
+	int resp = 0;
+	if (p_no==NULL)
+		resp = 0;
+	else{
+		if(strcmp(nome, p_no->elemento->nome)<0){
 			log[0]++;
+			printf("%s", "esq ");
+			resp = pesquisarRec(p_no->esq, nome, log);
 		}
-		while (compare(j->elemento, pivo, 3)>0.0){
-			j=j->ant;
-
-			log[0]++;
-		}
-
-		if(i->ant!=j && j->prox!=i && i->ant!=j->prox){
-			swap(i,j);
-			i=i->prox;
-			j=j->ant;
-
-			log[1]+=3;
+		else{
+			if(strcmp(nome, p_no->elemento->nome)>0){
+				log[0]++;
+				printf("%s", "dir ");
+				resp = pesquisarRec(p_no->dir, nome, log);
+			}
+			else
+				resp = 1;
 		}
 	}
-
-        if (j->prox!=esq && j!=esq){
-		quickSort(esq, j, log);
-	}
-	if (i!=dir && i!=NULL){
-		quickSort(i, dir, log);
-	}
-
-	
+	return resp;
 }
 
-/**
-*ordenarQuickSort - ordena a lista pelo metodo quicksort
-*@param Lista* p_lista, int log[]
-*/	
-void ordenarQuickSort(Lista* p_lista, int log[]){
-	quickSort(p_lista->primeiro->prox, p_lista->ultimo, log);
-}
-
-//----------------------------------- Main ---------------------------------
+//--------------------------------------- Main ---------------------------------------------
 
 
 /**
@@ -564,7 +541,7 @@ void ordenarQuickSort(Lista* p_lista, int log[]){
 */
 int  main(void){
         
-	Lista* p_lista = construtorLista();
+	Arvore* p_arvore = construtorArvore();
 	int log[] = {0,0};
 	Personagem* p;
 	char* input = (char*) malloc(sizeof(char) * 100);
@@ -574,24 +551,32 @@ int  main(void){
 		
 	while(!isFim(input)){
 		p = constructor2(input);
-		inserirFim(p_lista, p);
+		inserir(p_arvore, p);
 		fgets(input, 99, stdin);
 		input[strlen(input)-1]='\0';
 	}	
 	clock_t inicio = clock();
-	ordenarQuickSort(p_lista, log);
+	fgets(input, 99, stdin);
+	input[strlen(input)-1]='\0';
+		
+	while(!isFim(input)){
+		if(pesquisar(p_arvore, input, log))
+			printf("%s\n", "SIM");
+		else
+			printf("%s\n", "NÃO");
+		fgets(input, 99, stdin);
+		input[strlen(input)-1]='\0';
+	}
 	clock_t fim = clock();
-
-	mostrar2(p_lista);
 
 	double segundos = (fim - inicio) / (double)CLOCKS_PER_SEC / 1000.0;
 
 	//arquivo log
-	FILE* arq = fopen("651230_quicksort2.txt", "wt");
+	FILE* arq = fopen("651230_avl.txt", "wt");
 	fprintf (arq, "%s\t%d\t%d\t%lf","651230", log[0], log[1], segundos);
 	fclose(arq);
 
-	freeLista(p_lista);
+//	freeArvore(p_lista);
 }	
 
 
