@@ -424,7 +424,7 @@ class Arvore{
          if (raiz.esq==null)
             raiz.esq = new Node(p);
          else
-            raiz = inserir(p, raiz.esq); 
+            raiz = inserir(p, raiz, raiz.esq); 
       }
       else if (p.compareTo(raiz.elemento, 0)>0.0){
          if (raiz.dir==null)
@@ -451,20 +451,46 @@ class Arvore{
          if (no.dir==null)
             no.dir = new Node(p);
          else
-            no = inserir(p, no, no.esq);
+            no = inserir(p, no, no.dir);
       }
       else
          throw new Exception ("Elemento existente");
-
-     return pai;
+      
+      pai = balancear (pai, no);
+      return pai;
 	}
+
+//Balanceamento
+   private Node balancear(Node pai, Node no){
+         if(no.cor){
+            if (no.esq!=null&&no.esq.cor){
+               if(no.elemento.compareTo(pai.elemento, 0)<0.0)
+                  pai=rotDir(pai);
+               else{
+                  no=rotDir(no);
+                  pai=rotEsq(pai);
+               }
+            }
+            else if(no.dir!=null&&no.dir.cor){
+               if(no.elemento.compareTo(pai.elemento, 0)>0.0)
+                  pai=rotEsq(pai);
+               else{
+                  no=rotEsq(no);
+                  pai=rotDir(pai);
+               }
+            }
+         }
+         pai.cor=false;
+         pai.esq.cor = pai.dir.cor = true;
+         return pai;
+   } 
 
 //Teste tipo 4
    /**
    *tipo4 - testa se um no do tipo quatro, se for fragmenta
    *@param Node
    */
-   void tipo4(Node no){
+   private void tipo4(Node no){
       if(no!=null){
          if(no.esq!=null&&no.dir!=null&&no.esq.cor&&no.dir.cor){
             no.esq.cor=false;
@@ -482,7 +508,7 @@ class Arvore{
    */
    private Node rotDir(Node no){
       Node noEsq = no.esq;
-      no.esq = noEsq.dir
+      no.esq = noEsq.dir;
       noEsq.dir = no;
       return noEsq;
    }
