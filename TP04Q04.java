@@ -415,74 +415,106 @@ class Arvore{
 	*@param Elemento Personagem
 	*/
 	public void inserir(Personagem p) throws Exception{
-
-		tipo4(raiz);
-
       if(this.raiz==null)
          this.raiz = new Node(p, false);
-      else if (p.compareTo(raiz.elemento, 0)<0.0){
-         if (raiz.esq==null)
-            raiz.esq = new Node(p);
+      else if (raiz.esq==null&&raiz.dir==null){
+         if(p.compareTo(raiz.elemento, 0)<0.0)
+            raiz.esq=new Node(p);
          else
-            raiz = inserir(p, raiz, raiz.esq); 
+            raiz.dir=new Node(p);
       }
-      else if (p.compareTo(raiz.elemento, 0)>0.0){
-         if (raiz.dir==null)
-            raiz.dir = new Node(p);
-         else
-            raiz = inserir(p, raiz, raiz.dir);
+      else if(raiz.esq==null){
+         if(p.compareTo(raiz.elemento, 0)<0.0)
+            raiz.esq=new Node(p);
+         else if(p.compareTo(raiz.dir.elemento, 0)<0.0){
+            raiz.esq=new Node(raiz.elemento);
+            raiz.elemento=p;
+         }
+         else{
+            raiz.esq=new Node(raiz.elemento);
+            raiz.elemento=raiz.dir.elemento;
+            raiz.dir.elemento=p;
+         }
+         raiz.esq.cor=raiz.dir.cor=false;
+      }
+      else if(raiz.dir==null){
+         if(p.compareTo(raiz.elemento, 0)>0.0)
+            raiz.dir=new Node(p);
+         else if(p.compareTo(raiz.esq.elemento, 0)>0.0){
+            raiz.dir=new Node(raiz.elemento);
+            raiz.elemento=p;
+         }
+         else{
+            raiz.dir=new Node(raiz.elemento);
+            raiz.elemento=raiz.esq.elemento;
+            raiz.esq.elemento=p;
+         }
+         raiz.esq.cor=raiz.dir.cor=false;
       }
       else
-         throw new Exception ("Elemento existente");
-
-      raiz.cor = false;
+         inserir(p, null, null, null, raiz);
+      
 	}
-	private Node inserir(Personagem p, Node pai, Node no) throws Exception{
-      
-      tipo4(no);
-      
-      if (p.compareTo(no.elemento, 0)<0.0){
-         if (no.esq==null)
-            no.esq = new Node(p);
+	private void inserir(Personagem p, Node bis, Node avo, Node pai, Node i) throws Exception{
+      if(i==null){
+         if(p.compareTo(pai.elemento, 0)<0.0)
+            i=pai.esq=new Node(p);
          else
-            no = inserir(p, no, no.esq); 
+            i=pai.dir=new Node(p);
+         if(pai.cor)
+            balancear(bis, avo, pai, i);
       }
-      else if (p.compareTo(no.elemento, 0)>0.0){
-         if (no.dir==null)
-            no.dir = new Node(p);
+      else{
+         if(i.esq!=null&&i.dir!=null&&i.esq.cor&&i.dir.cor){
+            i.cor=true;
+            i.esq.cor=i.dir.cor=false;
+            if(i==raiz){
+               i.cor=false;
+            }
+            else if(pai.cor==true){
+               balancear(bis, avo, pai, i);
+            }
+         }
+         if(p.compareTo(i.elemento, 0)<0.0)
+            inserir(p, avo, pai, i, i.esq);
+         else if(p.compareTo(i.elemento, 0)>0.0)
+            inserir(p, avo, pai, i, i.dir);
          else
-            no = inserir(p, no, no.dir);
-      }
-      else
-         throw new Exception ("Elemento existente");
-      
-      pai = balancear (pai, no);
-      return pai;
+            throw new Exception ("Elemento Existente");
+      } 
 	}
 
 //Balanceamento
-   private Node balancear(Node pai, Node no){
-         if(no.cor){
-            if (no.esq!=null&&no.esq.cor){
-               if(no.elemento.compareTo(pai.elemento, 0)<0.0)
-                  pai=rotDir(pai);
-               else{
-                  no=rotDir(no);
-                  pai=rotEsq(pai);
-               }
-            }
-            else if(no.dir!=null&&no.dir.cor){
-               if(no.elemento.compareTo(pai.elemento, 0)>0.0)
-                  pai=rotEsq(pai);
-               else{
-                  no=rotEsq(no);
-                  pai=rotDir(pai);
-               }
+   private void balancear(Node bis, Node avo, Node pai, Node i){
+      if(pai.cor){
+         if(pai.elemento.compareTo(avo.elemento, 0)>0.0){
+            if(i.elemento.compareTo(pai.elemento, 0)>0.0)
+               avo=rotEsq(avo);
+            else{
+               avo.dir=rotDir(pai);
+               avo=rotEsq(avo);
             }
          }
-         pai.cor=false;
-         pai.esq.cor = pai.dir.cor = true;
-         return pai;
+         else{
+            if(i.elemento.compareTo(pai.elemento, 0)<0.0)
+               avo=rotDir(avo);
+            else{
+               avo.esq=rotEsq(pai);
+               avo=rotDir(avo);
+            }
+         }
+         if(bis==null)
+            raiz=avo;
+         else{
+            if(avo.elemento.compareTo(bis.elemento, 0)<0.0)
+               bis.esq=avo;
+            else
+               bis.dir=avo;
+         }
+      
+         avo.cor=false;
+         avo.esq.cor = avo.dir.cor = true;
+      }
    } 
 
 //Teste tipo 4
@@ -660,7 +692,6 @@ public class TP04Q04{
 		}
 		fim=tempo();
 		double segundos = ((double)(fim-inicio))/1000.0;
-		
 		//arquivo log
 		Arq.openWrite("651230_alvinegra.txt");
 		Arq.print("651230\t"+segundos+"\t"+log[0]);
