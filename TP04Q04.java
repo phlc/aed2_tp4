@@ -686,7 +686,7 @@ public class TP04Q04{
 			if(arv.pesquisar(input, log))
 				MyIO.println("SIM");
 			else
-				MyIO.println("N"+(char)195+"O");
+				MyIO.println("NÃO");
 			input = MyIO.readLine();
 //			input = Personagem.toUtf(input);
 		}
