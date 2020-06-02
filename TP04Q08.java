@@ -371,7 +371,7 @@ class Personagem {
 */
 class Node{
  //tamanho
-   private static final int length = 26;
+   public static final int length = 26;
 
  //atributos
 	public boolean isLeaf;
@@ -454,6 +454,35 @@ class ArvoreTrie{
          resp = i.isLeaf;
 		return resp; 
 	}
+
+// Merge estatico
+   /**
+   *merge - Junta duas arvores Trie em uma
+   *@param ArvoreTrie a b
+   *@return Arvore Trie c
+   */
+   public static ArvoreTrie merge(ArvoreTrie a, ArvoreTrie b){
+      ArvoreTrie c = new ArvoreTrie();
+      merge(a.raiz, c.raiz);
+      merge(b.raiz, c.raiz);
+      return c;
+   }
+   
+   //@param Node from,  to
+   //prioridade para as palavra do primeiro parametro
+   private static void merge(Node from, Node to){
+      to.isLeaf = to.isLeaf || from.isLeaf;
+      if (!to.isLeaf){
+         for(int i=0; i<Node.length; i++){
+            if(from.next[i]!=null){
+               if(to.next[i]==null)
+                  to.next[i] = new Node();
+               merge(from.next[i], to.next[i]);
+            }
+         }
+      }
+   }
+
 }
 
 
@@ -500,8 +529,8 @@ public class TP04Q08{
 		}
    
 
-//      arv3 = ArvoreTrie.merge(arv1, arv2);
-arv3=arv1;
+      arv3 = ArvoreTrie.merge(arv1, arv2);
+
 
 		inicio=tempo();
 		input = MyIO.readLine();
